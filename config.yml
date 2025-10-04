@@ -1,9 +1,9 @@
 # 站点基本信息
 title: "Blazemark Blog"
 subtitle: "用 Python 极速生成静态博客"
-description: "这是一个用 Python 编写的极快静态博客生成器 Blazemark"
-author: "你的名字"
-url: "http://127.0.0.1:8000"
+description: "Blazemark是一个用 Python 编写的极快静态博客生成器"
+author: "北辰三梦"
+url: "https://bcsm114514.github.io"
 base_url: /
 
 # 主题配置
@@ -11,15 +11,3 @@ theme: "default"
 
 # 其他可扩展配置
 language: "zh-CN"
-
-navs:
-  - name: 首页
-    url: /
-  - name: 归档
-    url: /archive/
-  - name: 关于
-    url: /about/
-  - name: 友链
-    url: /links/
-  - name: GitHub
-    url: https://github.com/yourname
