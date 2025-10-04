@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blazemark 主题构建指南 - Blazemark Blog</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <script defer src="/static/js/theme.js"></script>
+</head>
+<body class="theme-light">
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-branding">
+        <h1 class="site-title"><a href="https://bcsm114514.github.io">Blazemark Blog</a></h1>
+        
+        <p class="site-subtitle">用 Python 极速生成静态博客</p>
+        
+      </div>
+      <nav class="site-nav">
+        <ul>
+        
+        </ul>
+      </nav>
+      <button class="theme-toggle" aria-label="切换主题">🌓</button>
+    </div>
+    
+  </header>
+
+  <main class="site-main">
+    <div class="content-inner">
+      
+  <article class="post-full">
+    <h1 class="post-full-title">Blazemark 主题构建指南</h1>
+    <div class="post-full-meta">
+      <time>2025-10-02</time>
+      
+        <span class="tags">
+          
+            <a href="/tag/Blazemark">Blazemark</a>
+          
+        </span>
+        <span class="category">
+          
+        </span>        
+      
+    </div>
+    <div class="post-content">
+      <h1>Blazemark 主题构建指南</h1>
+<p>Blazemark 使用 <strong>Jinja2 模板</strong> + <strong>Markdown 文件渲染</strong> 来生成静态博客页面。本指南将带你从零创建一个自定义主题。</p>
+<hr />
+<h2>1. 主题目录结构</h2>
+<p>建议的主题目录结构如下：</p>
+<pre><code class="language-yaml">themes/
+└── your_theme/
+├── templates/
+│ ├── index.html # 首页模板
+│ ├── post.html # 文章页模板
+│ ├── page.html # 页面模板
+│ └── _partials/
+│ ├── header.html # 顶部导航
+│ ├── footer.html # 页脚
+│ └── sidebar.html # 侧边栏
+└── static/ # 静态资源（CSS/JS/图片）
+├── css/
+├── js/
+└── img/
+</code></pre>
+<hr />
+<h2>2. 模板变量说明</h2>
+<p>Blazemark 渲染模板时，会提供以下主要变量：</p>
+<ul>
+<li><code>site</code>：站点信息，来自 <code>config.yml</code>
+<pre><code class="language-yaml">site.title         # 网站标题
+site.subtitle      # 副标题
+site.description   # 网站描述
+site.author        # 作者
+site.url           # 网站网址
+site.language      # 语言
+site.year          # 当前年份
+</code></pre>
+</li>
+<li>posts：文章列表（首页模板）</li>
+</ul>
+<pre><code class="language-python">posts = [
+    {
+        &quot;meta&quot;: { &quot;title&quot;: &quot;文章标题&quot;, &quot;date&quot;: &quot;2025-10-03&quot;, ... },
+        &quot;url&quot;: &quot;/slug/index.html&quot;
+    },
+    ...
+]
+</code></pre>
+<ul>
+<li>post：单篇文章内容（文章页模板）</li>
+</ul>
+<pre><code class="language-python">post.title
+post.content   # HTML 内容
+post.meta      # 原始 meta 字典
+post.url
+</code></pre>
+<hr />
+<h2>3. 首页模板示例 (index.html)</h2>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;{{ site.language }}&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;{{ site.title }}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;header&gt;
+    &lt;h1&gt;{{ site.title }}&lt;/h1&gt;
+    &lt;p&gt;{{ site.subtitle }}&lt;/p&gt;
+  &lt;/header&gt;
+
+  &lt;main&gt;
+    {% for p in posts %}
+    &lt;article&gt;
+      &lt;h2&gt;&lt;a href=&quot;{{ p.url }}&quot;&gt;{{ p.meta.title }}&lt;/a&gt;&lt;/h2&gt;
+      &lt;p&gt;{{ p.meta.date }}&lt;/p&gt;
+    &lt;/article&gt;
+    {% endfor %}
+  &lt;/main&gt;
+
+  &lt;footer&gt;
+    &lt;p&gt;&amp;copy; {{ site.year }} {{ site.author }}&lt;/p&gt;
+  &lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<hr />
+<h2>4. 文章页模板示例 (post.html)</h2>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;{{ site.language }}&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;{{ post.title }} - {{ site.title }}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;header&gt;
+    &lt;h1&gt;{{ post.title }}&lt;/h1&gt;
+    &lt;p&gt;{{ post.meta.date }}&lt;/p&gt;
+  &lt;/header&gt;
+
+  &lt;main&gt;
+    {{ post.content | safe }}
+  &lt;/main&gt;
+
+  &lt;footer&gt;
+    &lt;p&gt;&amp;copy; {{ site.year }} {{ site.author }}&lt;/p&gt;
+  &lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<hr />
+<h2>5. 静态资源管理</h2>
+<h3>CSS/JS 文件放在 static/ 下。</h3>
+<h3>模板中使用相对路径引用：</h3>
+<pre><code class="language-html">&lt;link rel=&quot;stylesheet&quot; href=&quot;/static/css/style.css&quot;&gt;
+&lt;script src=&quot;/static/js/main.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+<hr />
+<h2>6. 主题启用</h2>
+<p>将主题文件夹放入 themes/。</p>
+<p>在 config.yml 中指定主题：</p>
+<pre><code class="language-yaml">theme: your_theme
+</code></pre>
+<p>运行构建：</p>
+<pre><code class="language-bash">python blazemark.py build
+</code></pre>
+<hr />
+<h2>7. 高级技巧</h2>
+<ul>
+<li>
+<p>使用 _partials/ 文件夹拆分可复用组件，如导航栏、页脚、侧边栏。</p>
+</li>
+<li>
+<p>支持 Jinja2 语法，使用 {% for %} 循环渲染文章列表。</p>
+</li>
+<li>
+<p>可以使用插件系统动态修改渲染 HTML。</p>
+</li>
+</ul>
+<hr />
+<h2>8. 调试</h2>
+<p>构建完成后，使用预览服务器查看效果：</p>
+<pre><code class="language-bash">python blazemark.py serve
+</code></pre>
+<p>输出文件在 public/ 目录下。</p>
+
+    </div>
+    <div class="post-footer-nav">
+      
+      
+    </div>
+  <p><em>字数统计: 528 字</em></p></article>
+
+  <!-- 引入 Prism.js -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-markup.min.js"></script>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>© 2025 Blazemark Blog. All Rights Reserved.</p>
+      <p>
+        <a href="/rss.xml">RSS</a> |
+        <a href="/sitemap.xml">Sitemap</a>
+      </p>
+      <p>Powered by blazemark / theme: BlazeMark</p>
+    </div>
+  </footer>
+</body>
+</html>

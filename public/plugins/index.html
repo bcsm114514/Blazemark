@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blazemark 插件构建指南 - Blazemark Blog</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <script defer src="/static/js/theme.js"></script>
+</head>
+<body class="theme-light">
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-branding">
+        <h1 class="site-title"><a href="https://bcsm114514.github.io">Blazemark Blog</a></h1>
+        
+        <p class="site-subtitle">用 Python 极速生成静态博客</p>
+        
+      </div>
+      <nav class="site-nav">
+        <ul>
+        
+        </ul>
+      </nav>
+      <button class="theme-toggle" aria-label="切换主题">🌓</button>
+    </div>
+    
+  </header>
+
+  <main class="site-main">
+    <div class="content-inner">
+      
+  <article class="post-full">
+    <h1 class="post-full-title">Blazemark 插件构建指南</h1>
+    <div class="post-full-meta">
+      <time>2025-10-02</time>
+      
+        <span class="tags">
+          
+            <a href="/tag/Blazemark">Blazemark</a>
+          
+        </span>
+        <span class="category">
+          
+        </span>        
+      
+    </div>
+    <div class="post-content">
+      <h1>📦 Blazemark 插件构建指南</h1>
+<p>Blazemark 支持插件扩展功能，用户可以通过编写插件对生成流程进行修改，例如自动加标签、修改文章内容、添加额外字段等。</p>
+<hr />
+<h2>🔹 1. 插件基础结构</h2>
+<p>Blazemark 的插件基类是：</p>
+<pre><code class="language-python">class Plugin:
+    def on_config(self, config: dict) -&gt; dict:
+        return config
+
+    def on_post(self, post: &quot;Post&quot;) -&gt; &quot;Post&quot;:
+        return post
+
+    def on_build(self, site: dict) -&gt; dict:
+        return site
+</code></pre>
+<p>三个可选的钩子方法：</p>
+<ul>
+<li>
+<pre><code>on_config(config)
+</code></pre>
+<p>在加载配置后执行，可修改 config。</p>
+</li>
+<li>
+<pre><code>on_post(post)
+</code></pre>
+<p>在处理每篇文章时执行，可修改文章对象。</p>
+</li>
+<li>
+<pre><code>on_build(site)
+</code></pre>
+<p>在整个网站生成后执行，可修改 site 对象。</p>
+</li>
+</ul>
+<hr />
+<h2>🔹 2. 数据结构</h2>
+<p>Post 对象</p>
+<pre><code class="language-python">@dataclass
+class Post:
+    src: str       # 源文件路径
+    slug: str      # 文章 slug
+    title: str     # 标题
+    date: str      # 日期
+    content: str   # HTML 内容
+    meta: dict     # 元数据（从 Markdown frontmatter 读取）
+    url: str = &quot;&quot;  # 最终生成的链接
+</code></pre>
+<p>Site 对象</p>
+<pre><code class="language-python">{
+    &quot;config&quot;: {...},   # 站点配置
+    &quot;posts&quot;: [Post],   # 全部文章
+    &quot;pages&quot;: [Post],   # 额外页面
+}
+</code></pre>
+<hr />
+<h2>🔹 3. 插件示例</h2>
+<p>示例 1：自动生成rss.xml与sitemap.xml</p>
+<pre><code class="language-python">import os
+from pathlib import Path
+from datetime import datetime
+from xml.sax.saxutils import escape
+
+from blazemark import Plugin
+from urllib.parse import quote
+
+class RSSAndSitemapAdvancedPlugin(Plugin):
+    def on_build_finished(self, generator, data=None):
+        output_dir = getattr(generator, &quot;OUTPUT_DIR&quot;, Path(&quot;public&quot;))
+        site = generator.config
+        site_url = site.get(&quot;url&quot;, &quot;http://example.com&quot;).rstrip(&quot;/&quot;)
+
+        posts = generator.get_posts(include_drafts=False)
+
+        # -------- 生成 RSS.xml --------
+        rss_items = []
+        for post in posts:
+            url = f&quot;{site_url}{post['url']}&quot;
+            title = escape(post['title'])
+            description = escape(post.get('description', post.get('content', '')[:200]))
+            pub_date = post.get('date', datetime.now().strftime(&quot;%a, %d %b %Y %H:%M:%S +0000&quot;))
+            categories = post.get('category', [])
+            if isinstance(categories, str):
+                categories = [categories]
+            tags = post.get('tags', [])
+            if isinstance(tags, str):
+                tags = [tags]
+
+            category_tags = &quot;&quot;.join([f&quot;&lt;category&gt;{escape(c)}&lt;/category&gt;&quot; for c in categories+tags])
+            rss_items.append(f&quot;&quot;&quot;
+    &lt;item&gt;
+      &lt;title&gt;{title}&lt;/title&gt;
+      &lt;link&gt;{url}&lt;/link&gt;
+      &lt;description&gt;{description}&lt;/description&gt;
+      &lt;pubDate&gt;{pub_date}&lt;/pubDate&gt;
+      {category_tags}
+      &lt;guid&gt;{url}&lt;/guid&gt;
+    &lt;/item&gt;
+            &quot;&quot;&quot;.strip())
+
+        rss_xml = f&quot;&quot;&quot;&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;rss version=&quot;2.0&quot;&gt;
+&lt;channel&gt;
+  &lt;title&gt;{escape(site.get('title', 'Blazemark Blog'))}&lt;/title&gt;
+  &lt;link&gt;{site_url}/&lt;/link&gt;
+  &lt;description&gt;{escape(site.get('description', ''))}&lt;/description&gt;
+  {''.join(rss_items)}
+&lt;/channel&gt;
+&lt;/rss&gt;
+        &quot;&quot;&quot;
+
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+        with open(Path(output_dir)/&quot;rss.xml&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+            f.write(rss_xml)
+        print(&quot;[插件] RSS.xml 已生成&quot;)
+
+        # -------- 生成 Sitemap.xml --------
+        urls = set()
+        for post in posts:
+            urls.add(post['url'])
+
+        # 标签页面
+        all_tags = set()
+        all_categories = set()
+        for post in posts:
+            tags = post.get('tags', [])
+            if isinstance(tags, str):
+                tags = [tags]
+            all_tags.update(tags)
+            categories = post.get('category', [])
+            if isinstance(categories, str):
+                categories = [categories]
+            all_categories.update(categories)
+
+        for tag in all_tags:
+            urls.add(f&quot;/tag/{quote(tag)}/&quot;)
+        for cat in all_categories:
+            urls.add(f&quot;/category/{quote(cat)}/&quot;)
+
+        sitemap_items = []
+        for url in urls:
+            full_url = f&quot;{site_url}{url}&quot;
+            lastmod = datetime.now().strftime(&quot;%Y-%m-%d&quot;)
+            sitemap_items.append(f&quot;&quot;&quot;
+  &lt;url&gt;
+    &lt;loc&gt;{full_url}&lt;/loc&gt;
+    &lt;lastmod&gt;{lastmod}&lt;/lastmod&gt;
+    &lt;changefreq&gt;weekly&lt;/changefreq&gt;
+    &lt;priority&gt;0.8&lt;/priority&gt;
+  &lt;/url&gt;
+            &quot;&quot;&quot;.strip())
+
+        sitemap_xml = f&quot;&quot;&quot;&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;urlset xmlns=&quot;http://www.sitemaps.org/schemas/sitemap/0.9&quot;&gt;
+{''.join(sitemap_items)}
+&lt;/urlset&gt;
+        &quot;&quot;&quot;
+
+        with open(Path(output_dir)/&quot;sitemap.xml&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+            f.write(sitemap_xml)
+        print(&quot;[插件] Sitemap.xml 已生成&quot;)
+
+# 实例化插件
+plugin = RSSAndSitemapAdvancedPlugin()
+</code></pre>
+<p>示例 2：字数统计</p>
+<pre><code class="language-python">from blazemark import Plugin, Post
+import re
+
+class WordCountPlugin(Plugin):
+    def count_words(self, text: str) -&gt; int:
+        &quot;&quot;&quot;统计文本中的中文汉字 + 英文单词&quot;&quot;&quot;
+        cn_count = len(re.findall(r'[\u4e00-\u9fff]', text))
+        en_count = len(re.findall(r'\b[a-zA-Z0-9]+\b', text))
+        return cn_count + en_count
+
+    def on_after_render(self, post: Post, html_content: str):
+        # 统计 Markdown 原文
+        words = self.count_words(post.content)
+        footer = f&quot;&lt;p&gt;&lt;em&gt;字数统计: {words} 字&lt;/em&gt;&lt;/p&gt;&quot;
+        # 插入文章末尾
+        html_content = html_content.replace(&quot;&lt;/article&gt;&quot;, footer + &quot;&lt;/article&gt;&quot;)
+        return html_content
+
+plugin = WordCountPlugin()
+</code></pre>
+<hr />
+<h2>🔹 4. 插件开发注意事项</h2>
+<p><strong>保持纯函数式修改</strong>：每个钩子应该返回修改后的对象，而不是直接操作全局变量。</p>
+<p><strong>避免重名冲突</strong>：插件类名保持唯一。</p>
+<p><strong>调试建议</strong>：在插件中可以 print() 输出调试信息。</p>
+<p><strong>安全性</strong>：插件可以修改所有数据，请避免执行危险操作。</p>
+
+    </div>
+    <div class="post-footer-nav">
+      
+      
+    </div>
+  <p><em>字数统计: 773 字</em></p></article>
+
+  <!-- 引入 Prism.js -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-markup.min.js"></script>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>© 2025 Blazemark Blog. All Rights Reserved.</p>
+      <p>
+        <a href="/rss.xml">RSS</a> |
+        <a href="/sitemap.xml">Sitemap</a>
+      </p>
+      <p>Powered by blazemark / theme: BlazeMark</p>
+    </div>
+  </footer>
+</body>
+</html>
