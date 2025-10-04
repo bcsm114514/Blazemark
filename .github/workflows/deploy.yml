@@ -35,7 +35,7 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}   # 或者使用 Personal Access Token
+          github_token: ${{ secrets.GH_TOKEN }}   # 或者使用 Personal Access Token
           publish_dir: ./public
           publish_branch: main     # 或 gh-pages，根据你的仓库设置
           user_name: "bcsm114514"
