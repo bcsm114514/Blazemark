@@ -34,16 +34,19 @@ jobs:
       # 5. 部署到 GitHub Pages
       - name: Deploy to Github Pages
         env:
-          DEPLOY_TOKEN: ${{ secrets.GH_TOKEN }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
         run: |
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+  
           cd public
           git init
-          git branch -M main
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git branch -M main
+          git remote add origin git@github.com:bcsm114514/bcsm114514.github.io.git
           git add .
           git commit -m "Deploy site via GitHub Actions"
-
-          # 推送到目标仓库
-          git remote add origin https://x-access-token:${DEPLOY_TOKEN}@github.com/bcsm114514/bcsm114514.github.io.git
           git push -f origin main
