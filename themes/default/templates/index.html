@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="post-list">
+    {% if posts %}
+      {% for post in posts %}
+      <article class="post-item">
+        <h2 class="post-title"><a href="{{ post.url }}">{{ post.meta.title }}</a></h2>
+        <div class="post-meta">
+          {% if post.meta.date %}<time>{{ post.meta.date }}</time>{% endif %}
+          
+          {# 显示标签 #}
+          {% if post.meta.tags %}
+          <span class="tags">标签:
+            {% for tag in post.meta.tags %}
+              <a href="{{ site.base_url }}/tag/{{ tag }}">{{ tag }}</a>{% if not loop.last %}, {% endif %}
+            {% endfor %}
+          </span>
+          {% endif %}
+
+          {# 显示分类 #}
+          {% if post.meta.category %}
+          <span class="category">分类:
+            {% if post.meta.category is iterable and not post.meta.category is string %}
+              {% for cat in post.meta.category %}
+                <a href="{{ site.base_url }}/category/{{ cat }}">{{ cat }}</a>{% if not loop.last %}, {% endif %}
+              {% endfor %}
+            {% else %}
+              <a href="{{ site.base_url }}/category/{{ post.meta.category }}">{{ post.meta.category }}</a>
+            {% endif %}
+          </span>
+          {% endif %}
+        </div>
+
+        {% if post.meta.description %}
+          <p class="post-desc">{{ post.meta.description }}</p>
+        {% endif %}
+        <a class="read-more" href="{{ post.url }}">阅读全文 →</a>
+      </article>
+      {% endfor %}
+    {% else %}
+      <p>暂无相关文章。</p>
+    {% endif %}
+  </section>
+{% endblock %}

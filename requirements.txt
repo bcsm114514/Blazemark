@@ -1,0 +1,8 @@
+# Markdown 渲染库
+cmarkgfm>=0.7.2
+
+# Jinja2 模板引擎
+Jinja2>=3.1.2
+
+# YAML 解析
+PyYAML>=6.0

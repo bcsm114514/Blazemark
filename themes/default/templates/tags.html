@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="page-title">
+{% if tag %}
+  标签：{{ tag }}
+{% else %}
+  所有标签
+{% endif %}
+</h1>
+
+{% if tag %}
+  <section class="post-list">
+    {% if posts %}
+      {% for post in posts %}
+      <article class="post-item">
+        <h2 class="post-title"><a href="{{ post.url }}">{{ post.meta.title }}</a></h2>
+        <div class="post-meta">
+          {% if post.meta.date %}<time>{{ post.meta.date }}</time>{% endif %}
+        </div>
+        {% if post.meta.description %}
+          <p class="post-desc">{{ post.meta.description }}</p>
+        {% endif %}
+      </article>
+      {% endfor %}
+    {% else %}
+      <p>暂无相关文章。</p>
+    {% endif %}
+  </section>
+{% else %}
+  <ul class="tag-index">
+    {% for t in all_tags %}
+      <li><a href="{{ site.base_url }}/tag/{{ t }}/">{{ t }}</a></li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% endblock %}

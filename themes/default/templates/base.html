@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="{{ site.language or 'zh' }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% if page.title %}{{ page.title }} - {% endif %}{{ site.title }}</title>
+  <link rel="stylesheet" href="{{ site.base_url }}/static/css/style.css" />
+  <script defer src="{{ site.base_url }}/static/js/theme.js"></script>
+</head>
+<body class="theme-light">
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="site-branding">
+        <h1 class="site-title"><a href="{{ site.url }}">{{ site.title }}</a></h1>
+        {% if site.subtitle %}
+        <p class="site-subtitle">{{ site.subtitle }}</p>
+        {% endif %}
+      </div>
+      <nav class="site-nav">
+        <ul>
+        {% for nav in site.navs %}
+          <li><a href="{{ nav.url }}">{{ nav.name }}</a></li>
+        {% endfor %}
+        </ul>
+      </nav>
+      <button class="theme-toggle" aria-label="切换主题">🌓</button>
+    </div>
+    {% if page.banner %}
+    <div class="banner">
+      <picture>
+        <source media="(max-width: 768px)" srcset="{{ page.banner_mobile }}">
+        <img src="{{ page.banner }}" alt="Banner">
+      </picture>
+    </div>
+    {% endif %}
+  </header>
+
+  <main class="site-main">
+    <div class="content-inner">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>© {{ site.year or now().year }} {{ site.title }}. All Rights Reserved.</p>
+      <p>
+        <a href="{{ site.base_url }}/rss.xml">RSS</a> |
+        <a href="{{ site.base_url }}/sitemap.xml">Sitemap</a>
+      </p>
+      <p>Powered by blazemark / theme: BlazeMark</p>
+    </div>
+  </footer>
+</body>
+</html>

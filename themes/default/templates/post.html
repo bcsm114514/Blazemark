@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <article class="post-full">
+    <h1 class="post-full-title">{{ post.meta.title }}</h1>
+    <div class="post-full-meta">
+      {% if post.meta.date %}<time>{{ post.meta.date }}</time>{% endif %}
+      {% if post.meta.tags %}
+        <span class="tags">
+          {% for tag in post.meta.tags %}
+            <a href="{{ site.base_url }}/tag/{{ tag }}">{{ tag }}</a>{% if not loop.last %}, {% endif %}
+          {% endfor %}
+        </span>
+        <span class="category">
+          {% for category in post.meta.categorys %}
+            <a href="{{ site.base_url }}/category/{{ category }}">{{ category }}</a>{% if not loop.last %}, {% endif %}
+          {% endfor %}
+        </span>        
+      {% endif %}
+    </div>
+    <div class="post-content">
+      {{ post.content | safe }}
+    </div>
+    <div class="post-footer-nav">
+      {% if post.meta.prev %}
+      <a class="prev-post" href="{{ post.meta.prev.url }}">← 上一篇：{{ post.meta.prev.title }}</a>
+      {% endif %}
+      {% if post.meta.next %}
+      <a class="next-post" href="{{ post.meta.next.url }}">下一篇：{{ post.meta.next.title }} →</a>
+      {% endif %}
+    </div>
+  </article>
+
+  <!-- 引入 Prism.js -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-markup.min.js"></script>
+{% endblock %}
+
