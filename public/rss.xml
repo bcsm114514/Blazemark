@@ -12,13 +12,6 @@
       <category>Blazemark</category><category>Blazemark</category>
       <guid>https://bcsm114514.github.io/about/index.html</guid>
     </item><item>
-      <title>Hello World</title>
-      <link>https://bcsm114514.github.io/hello-world/index.html</link>
-      <description></description>
-      <pubDate>2025-10-02</pubDate>
-      <category>Blazemark</category><category>Blazemark</category>
-      <guid>https://bcsm114514.github.io/hello-world/index.html</guid>
-    </item><item>
       <title>部署指南</title>
       <link>https://bcsm114514.github.io/deploy/index.html</link>
       <description></description>
@@ -32,6 +25,13 @@
       <pubDate>2025-10-02</pubDate>
       <category>Blazemark</category><category>Blazemark</category>
       <guid>https://bcsm114514.github.io/plugins/index.html</guid>
+    </item><item>
+      <title>Hello World</title>
+      <link>https://bcsm114514.github.io/hello-world/index.html</link>
+      <description></description>
+      <pubDate>2025-10-02</pubDate>
+      <category>Blazemark</category><category>Blazemark</category>
+      <guid>https://bcsm114514.github.io/hello-world/index.html</guid>
     </item><item>
       <title>Blazemark 主题构建指南</title>
       <link>https://bcsm114514.github.io/theme/index.html</link>

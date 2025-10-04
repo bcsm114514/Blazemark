@@ -4,10 +4,21 @@ subtitle: "用 Python 极速生成静态博客"
 description: "Blazemark是一个用 Python 编写的极快静态博客生成器"
 author: "北辰三梦"
 url: "https://bcsm114514.github.io"
-base_url: /
+base_url: ""
 
 # 主题配置
 theme: "default"
 
 # 其他可扩展配置
 language: "zh-CN"
+
+#Default主题顶栏配置
+navs:
+  - name: 首页
+    url: /
+  - name: 标签
+    url: /tag/
+  - name: 分类
+    url: /category/
+  - name: 归档
+    url: /archives/

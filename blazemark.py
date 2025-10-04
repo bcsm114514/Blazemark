@@ -171,15 +171,11 @@ class Blazemark:
 
     def build(self, force=False):
         t0 = time.time()
-        site_meta = {
-            "title": self.config.get("title", "Blazemark Blog"),
-            "subtitle": self.config.get("subtitle", ""),
-            "description": self.config.get("description", ""),
-            "author": self.config.get("author", ""),
-            "url": self.config.get("url", ""),
-            "language": self.config.get("language", "en"),
-            "year": datetime.now().year
-        }
+        site_meta = dict(self.config)  # 直接把配置文件里的内容复制过来
+        site_meta.setdefault("year", datetime.now().year)  # 如果没有 year 字段就加上当前年份
+        site_meta.setdefault("language", site_meta.get("language", "zh"))  # 默认语言
+        site_meta.setdefault("url", site_meta.get("url", ""))  # 默认 URL
+        site_meta.setdefault("base_url", "")  # 默认 base_url，可在 config.yml 指定
 
         posts_list, pages_list = self.discover_posts_and_pages()
         all_files = posts_list + pages_list

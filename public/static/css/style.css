@@ -213,3 +213,39 @@ body.theme-dark {
 .post-content p {
     margin-bottom: 1em;
 }
+
+/* ---------- 折叠样式 ---------- */
+details {
+    margin-bottom: 0.5em;
+    border: 1px solid var(--color-nav-link);
+    border-radius: 8px;
+    padding: 0.5em 1em;
+    background: var(--color-header-footer-bg);
+    transition: background 0.3s, color 0.3s;
+    color: var(--color-text);
+}
+details summary {
+    font-weight: bold;
+    cursor: pointer;
+    outline: none;
+}
+details[open] {
+    background: var(--color-bg);
+}
+
+/* ---------- 文章列表 ---------- */
+ul.post-list {
+    margin: 0.5em 0 0 1em;
+    padding-left: 0;
+    list-style: none;
+}
+ul.post-list li {
+    margin-bottom: 0.3em;
+}
+ul.post-list li a {
+    text-decoration: none;
+    color: var(--color-link);
+}
+ul.post-list li a:hover {
+    color: var(--color-link-hover);
+}

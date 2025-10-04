@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="page-title">{{ page.title }}</h1>
+
+{% if archives %}
+  {% for year, months in archives|dictsort(reverse=True) %}
+    <details open>
+      <summary>{{ year }}年</summary>
+      {% for month, posts in months|dictsort(reverse=True) %}
+        <details>
+          <summary>{{ month }}月</summary>
+          <ul class="post-list">
+            {% for p in posts %}
+              <li><a href="{{ p.url }}">{{ p.title }}</a> - {{ p.date }}</li>
+            {% endfor %}
+          </ul>
+        </details>
+      {% endfor %}
+    </details>
+  {% endfor %}
+{% else %}
+  <p>暂无文章归档。</p>
+{% endif %}
+
+{% endblock %}
